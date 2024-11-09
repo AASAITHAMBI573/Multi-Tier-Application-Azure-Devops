@@ -1,0 +1,202 @@
+trigger:
+  none
+
+pool:
+  name: Default
+  demands:
+    - agent.name -equals PRANAV-PERSONAL
+
+stages:
+  - stage: compile
+    displayName: 'Maven Compile'
+    jobs:
+      - job: maven_compile
+        steps:
+          - powershell: |
+              $env:PATH += ";C:\Program Files\Apache\maven\apache-maven-3.9.9\bin"
+              Write-Host "Updated PATH: $env:PATH"
+            displayName: 'Set Maven Path'
+          
+          - task: Maven@4
+            inputs:
+              mavenPOMFile: 'pom.xml'
+              goals: 'compile'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Path'
+              mavenPath: 'C:\Program Files\Apache\maven\apache-maven-3.9.9'
+              options: '-B --no-transfer-progress'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+
+  - stage: test
+    displayName: 'Maven-Test'
+    jobs:
+      - job: maven_test
+        displayName: 'Unit Test'
+        steps:
+          - powershell: |
+              $env:PATH += ";C:\Program Files\Apache\maven\apache-maven-3.9.9\bin"
+              Write-Host "Updated PATH: $env:PATH"
+            displayName: 'Set Maven Path'
+          
+          - task: Maven@4
+            inputs:
+              mavenPOMFile: 'pom.xml'
+              goals: 'test'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Path'
+              mavenPath: 'C:\Program Files\Apache\maven\apache-maven-3.9.9'
+              options: '-B --no-transfer-progress'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+
+  - stage: trivy_fs_scan
+    displayName: 'Trivy FS Scan'
+    jobs:
+      - job: trivy_fs_scan
+        displayName: 'Trivy FS Scan'
+        steps:
+          - powershell: |
+              $trivyVersion = "0.45.1"
+              $trivyZip = "trivy_${trivyVersion}_windows-64bit.zip"
+              $trivyUrl = "https://github.com/aquasecurity/trivy/releases/download/v${trivyVersion}/${trivyZip}"
+              New-Item -ItemType Directory -Force -Path "C:\trivy"
+              Invoke-WebRequest -Uri $trivyUrl -OutFile "C:\trivy\$trivyZip"
+              Expand-Archive -Path "C:\trivy\$trivyZip" -DestinationPath "C:\trivy" -Force
+              $env:PATH += ";C:\trivy"
+              Write-Host "##vso[task.setvariable variable=PATH;]$env:PATH"
+              trivy fs --format table -o fs.html .
+            displayName: 'Install and Run Trivy'
+          
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'fs.html'
+              ArtifactName: 'TrivyReport'
+              publishLocation: 'Container'
+            displayName: 'Publish Trivy Report'
+
+  - stage: sonarqube
+    displayName: 'SonarAnalysis'
+    jobs:
+      - job: sonarqube_analysis
+        steps:
+          - task: SonarQubePrepare@7
+            inputs:
+              SonarQube: 'sonar-svc'
+              scannerMode: 'cli'
+              configMode: 'manual'
+              cliProjectKey: 'bankapp'
+              cliProjectName: 'bankapp'
+              cliSources: '.'
+              extraProperties: 'sonar.java.binaries=.'
+
+          - task: SonarQubeAnalyze@7
+            inputs:
+              jdkversion: 'JAVA_HOME_17_X64'
+
+  - stage: Publish_Artifacts
+    displayName: 'Publish Artifacts'
+    jobs:
+      - job: publish_artifacts
+        displayName: 'Publish_Build_Artifacts'
+        steps:
+          - task: MavenAuthenticate@0
+            inputs:
+              artifactsFeeds: 'Multi-Stage-YAML'
+          
+          - task: Maven@4
+            inputs:
+              mavenPOMFile: 'pom.xml'
+              goals: 'package'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Path'
+              mavenPath: 'C:\Program Files\Apache\maven\apache-maven-3.9.9'
+              options: '-B --no-transfer-progress'
+              mavenAuthenticateFeed: true
+            displayName: 'Package Application'
+
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: |
+                target/*.jar
+                target/*.war
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+            displayName: 'Copy Files to Staging Directory'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'java-artifact'
+              publishLocation: 'Container'
+            displayName: 'Publish Build Artifacts'
+  
+  - stage: docker_build
+    displayName: 'Docker Build'
+    jobs:
+      - job: docker_build
+        displayName: 'Docker_Build'
+        steps:
+          - powershell: |
+              # Install Chocolatey if not installed
+              if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+                  Set-ExecutionPolicy Bypass -Scope Process -Force
+                  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+                  iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+              }
+              
+              # Install Docker Desktop
+              choco install docker-desktop -y
+              
+              # Add Docker to PATH
+              $env:PATH += ";C:\Program Files\Docker\Docker\resources\bin"
+              Write-Host "##vso[task.setvariable variable=PATH;]$env:PATH"
+              
+              # Start Docker service
+              Start-Service *docker*
+              
+              # Verify Docker installation
+              docker --version
+            displayName: 'Install and Configure Docker'
+
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'docker-svc'
+              repository: 'dev'
+              command: 'build'
+              Dockerfile: '**/Dockerfile'
+              tags: 'latest'
+            displayName: 'Build Docker Image'
+  
+  - stage: trivy_image_scan
+    displayName: 'Trivy Image Scan'
+    jobs:
+      - job: trivy_image_scan
+        displayName: 'Trivy Image Scan'
+        steps:
+          - powershell: |
+              $trivyVersion = "0.45.1"
+              $trivyZip = "trivy_${trivyVersion}_windows-64bit.zip"
+              $trivyUrl = "https://github.com/aquasecurity/trivy/releases/download/v${trivyVersion}/${trivyZip}"
+              New-Item -ItemType Directory -Force -Path "C:\trivy"
+              Invoke-WebRequest -Uri $trivyUrl -OutFile "C:\trivy\$trivyZip"
+              Expand-Archive -Path "C:\trivy\$trivyZip" -DestinationPath "C:\trivy" -Force
+              $env:PATH += ";C:\trivy"
+              Write-Host "##vso[task.setvariable variable=PATH;]$env:PATH"
+              trivy image --format table -o trivy-image-results.html devopsdeploy.azurecr.io/dev:latest
+            displayName: 'Install and Run Trivy'
+          
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'trivy-image-results.html'
+              ArtifactName: 'TrivyImageReport'
+              publishLocation: 'Container'
+            displayName: 'Publish Trivy Image Report'
