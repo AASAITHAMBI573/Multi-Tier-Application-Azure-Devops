@@ -81,11 +81,12 @@ stages:
             inputs:
               mavenPomFile: 'pom.xml'
               goals: 'deploy'
+              options: '-DskipTests'
               publishJUnitResults: true
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
               javaHomeOption: 'JDKVersion'
               mavenVersionOption: 'Default'
-              mavenAuthenticateFeed: false
+              mavenAuthenticateFeed: true
               effectivePomSkip: false
               sonarQubeRunAnalysis: false
           - task: MavenAuthenticate@0
