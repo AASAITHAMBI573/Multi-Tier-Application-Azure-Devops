@@ -77,14 +77,11 @@ stages:
       - job: publish_artifacts
         displayName: 'Publish_Build_Artifacts'
         steps:
-          - task: MavenAuthenticate@0
-            inputs:
-              artifactsFeeds: 'bankapp-maven'
               
           - task: Maven@4
             inputs:
               mavenPomFile: 'pom.xml'
-              goals: 'package'
+              goals: 'clean deploy'
               publishJUnitResults: true
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
               javaHomeOption: 'JDKVersion'
@@ -92,6 +89,10 @@ stages:
               mavenAuthenticateFeed: false
               effectivePomSkip: false
               sonarQubeRunAnalysis: false
+          
+          - task: MavenAuthenticate@0
+            inputs:
+              artifactsFeeds: 'bankapp-maven'
           
           - task: CopyFiles@2
             inputs:
