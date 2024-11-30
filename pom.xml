@@ -95,13 +95,15 @@
 
     <distributionManagement>
         <repository>
-            <id>Multi-Stage-YAML</id>
-            <url>https://pkgs.dev.azure.com/Multi-Stage-YAML/_packaging/Multi-Stage-YAML/maven/v1</url>
-        </repository>
-        <snapshotRepository>
-            <id>Multi-Stage-YAML</id>
-            <url>https://pkgs.dev.azure.com/Multi-Stage-YAML/_packaging/Multi-Stage-YAML/maven/v1</url>
-        </snapshotRepository>
+  <id>bankapp-maven</id>
+  <url>https://pkgs.dev.azure.com/aasaithambi573/Multi-Tier-Application/_packaging/bankapp-maven/maven/v1</url>
+  <releases>
+    <enabled>true</enabled>
+  </releases>
+  <snapshots>
+    <enabled>true</enabled>
+  </snapshots>
+</repository>
     </distributionManagement>
 
 </project>
