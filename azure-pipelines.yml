@@ -77,14 +77,36 @@ stages:
       - job: publish_artifacts
         displayName: 'Publish_Build_Artifacts'
         steps:
-          - task: Maven@4
-            inputs:
-              mavenPomFile: 'pom.xml'
-              goals: 'clean deploy'
-              options: '-DskipTests'
-              mavenAuthenticateFeed: true
-
           - task: MavenAuthenticate@0
             inputs:
               artifactsFeeds: 'bankapp-maven'
+              
+          - task: Maven@4
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'package'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+          
+          - task: CopyFiles@2
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: |
+                target/*.jar
+                target/*.war
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+            displayName: 'Copy Files to Staging Directory'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'java-artifact'
+              publishLocation: 'Container'
+            displayName: 'Publish Build Artifacts'
+
 
