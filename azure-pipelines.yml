@@ -1,0 +1,44 @@
+trigger:
+- none
+
+pool:
+  name: Multi_Tier
+  demands:
+    - agent.name -equals Agent-1
+
+stages:
+  - stage: compile
+    displayName: 'Maven Compile'
+    jobs:
+      - job: maven_compile
+        steps:
+          - task: Maven@4
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'compile'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+          
+  - stage: test
+    displayName: 'Maven test'
+    jobs:
+      - job: unit_test
+        steps:
+          - task: Maven@4
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'test'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+          
+            
