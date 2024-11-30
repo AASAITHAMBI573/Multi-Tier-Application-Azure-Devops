@@ -41,4 +41,13 @@ stages:
               effectivePomSkip: false
               sonarQubeRunAnalysis: false
           
-            
+  - stage: trivy_fs_scan
+    displayName: 'Trivy FS Scan'
+    jobs:
+      - job: trivy_fs_scan
+        displayName: 'Trivy FS Scan'
+        steps:
+          - task: CmdLine@2
+            inputs:
+              script: 'trivy fs --format table -o fs.html .'
+
