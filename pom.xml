@@ -95,15 +95,13 @@
 
     <distributionManagement>
         <repository>
-  <id>bankapp-maven</id>
-  <url>https://pkgs.dev.azure.com/aasaithambi573/Multi-Tier-Application/_packaging/bankapp-maven/maven/v1</url>
-  <releases>
-    <enabled>true</enabled>
-  </releases>
-  <snapshots>
-    <enabled>true</enabled>
-  </snapshots>
-</repository>
+            <id>bankapp-maven</id>
+            <url>https://pkgs.dev.azure.com/aasaithambi573/Multi-Tier-Application/_packaging/bankapp-maven/maven/v1</url>
+        </repository>
+        <snapshotRepository>
+            <id>bankapp-maven</id>
+            <url>https://pkgs.dev.azure.com/aasaithambi573/Multi-Tier-Application/_packaging/bankapp-maven/maven/v1</url>
+        </snapshotRepository>
     </distributionManagement>
 
 </project>
