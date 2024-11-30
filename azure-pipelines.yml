@@ -94,20 +94,6 @@ stages:
             inputs:
               artifactsFeeds: 'bankapp-maven'
           
-          - task: CopyFiles@2
-            inputs:
-              SourceFolder: '$(System.DefaultWorkingDirectory)'
-              Contents: |
-                target/*.jar
-                target/*.war
-              TargetFolder: '$(Build.ArtifactStagingDirectory)'
-            displayName: 'Copy Files to Staging Directory'
 
-          - task: PublishBuildArtifacts@1
-            inputs:
-              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-              ArtifactName: 'java-artifact'
-              publishLocation: 'Container'
-            displayName: 'Publish Build Artifacts'
 
 
