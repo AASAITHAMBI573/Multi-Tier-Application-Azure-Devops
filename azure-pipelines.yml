@@ -50,4 +50,24 @@ stages:
           - task: CmdLine@2
             inputs:
               script: 'trivy fs --format table -o fs.html .'
+            
+  - stage: sonarqube
+    displayName: 'SonarAnalysis'
+    jobs:
+      - job: sonarqube_analysis
+        displayName: 'SonarAnalysis'
+        steps:
+        - task: SonarQubePrepare@7
+          inputs:
+            SonarQube: 'sonar-svc'
+            scannerMode: 'cli'
+            configMode: 'manual'
+            cliProjectKey: 'bankapp'
+            cliProjectName: 'bankapp'
+            cliSources: '.'
+            extraProperties: 'sonar.java.binaries=.'
+            
+        - task: SonarQubeAnalyze@7
+          inputs:
+            jdkversion: 'JAVA_HOME_17_X64'
 
