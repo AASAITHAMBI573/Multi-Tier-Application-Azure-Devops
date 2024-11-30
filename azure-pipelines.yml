@@ -7,23 +7,6 @@ pool:
     - agent.name -equals Agent-1
 
 stages:
-  - stage: clean
-    displayName: 'Maven Clean'
-    jobs:
-      - job: maven_clean
-        steps:
-          - task: Maven@4
-            inputs:
-              mavenPomFile: 'pom.xml'
-              goals: 'clean'
-              publishJUnitResults: true
-              testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              javaHomeOption: 'JDKVersion'
-              mavenVersionOption: 'Default'
-              mavenAuthenticateFeed: false
-              effectivePomSkip: false
-              sonarQubeRunAnalysis: false
-  
   - stage: compile
     displayName: 'Maven Compile'
     jobs:
@@ -97,7 +80,7 @@ stages:
           - task: Maven@4
             inputs:
               mavenPomFile: 'pom.xml'
-              goals: 'clean deploy'
+              goals: 'deploy'
               publishJUnitResults: true
               testResultsFiles: '**/surefire-reports/TEST-*.xml'
               javaHomeOption: 'JDKVersion'
