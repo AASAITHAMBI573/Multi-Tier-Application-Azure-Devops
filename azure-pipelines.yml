@@ -71,3 +71,24 @@ stages:
           inputs:
             jdkversion: 'JAVA_HOME_17_X64'
 
+  - stage: publish_artifacts
+    displayName: 'Publish_Build_Artifacts'
+    jobs:
+      - job: publish_artifacts
+        displayName: 'Publish_Build_Artifacts'
+        steps:
+          - task: Maven@4
+            inputs:
+              mavenPomFile: 'pom.xml'
+              goals: 'deploy'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              javaHomeOption: 'JDKVersion'
+              mavenVersionOption: 'Default'
+              mavenAuthenticateFeed: false
+              effectivePomSkip: false
+              sonarQubeRunAnalysis: false
+          - task: MavenAuthenticate@0
+            inputs:
+              artifactsFeeds: 'bankapp-maven'
+
