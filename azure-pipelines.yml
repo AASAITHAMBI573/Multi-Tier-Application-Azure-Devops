@@ -93,7 +93,30 @@ stages:
           - task: MavenAuthenticate@0
             inputs:
               artifactsFeeds: 'bankapp-maven'
-          
+
+  - stage: docker_build
+    displayName: 'Docker_Build'
+    jobs:
+      - job: docker_build
+        displayName: 'Docker_Build'
+        steps: 
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'docker-svc'
+              repository: 'dev'
+              command: 'build'
+              Dockerfile: '**/Dockerfile'
+              tags: 'latest'
+
+  - stage: trivy_images_scan
+    displayName: 'Trivy Images Scan'
+    jobs:
+      - job: trivy_images_scan
+        displayName: 'Trivy Images Scan'
+        steps:
+          - task: CmdLine@2
+            inputs:
+              script: 'trivy image --format table -o image.html public.ecr.aws/p9x4b5g0/bankapps:latest'
 
 
 
