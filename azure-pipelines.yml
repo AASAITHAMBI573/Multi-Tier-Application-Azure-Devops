@@ -100,6 +100,10 @@ stages:
       - job: docker_build
         displayName: 'Docker_Build'
         steps: 
+        
+          - task: CmdLine@2
+            inputs:
+              script: 'mvn package'
           - task: Docker@2
             inputs:
               containerRegistry: 'docker-svc'
