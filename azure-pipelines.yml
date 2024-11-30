@@ -80,15 +80,10 @@ stages:
           - task: Maven@4
             inputs:
               mavenPomFile: 'pom.xml'
-              goals: 'deploy'
+              goals: 'clean deploy'
               options: '-DskipTests'
-              publishJUnitResults: true
-              testResultsFiles: '**/surefire-reports/TEST-*.xml'
-              javaHomeOption: 'JDKVersion'
-              mavenVersionOption: 'Default'
               mavenAuthenticateFeed: true
-              effectivePomSkip: false
-              sonarQubeRunAnalysis: false
+
           - task: MavenAuthenticate@0
             inputs:
               artifactsFeeds: 'bankapp-maven'
