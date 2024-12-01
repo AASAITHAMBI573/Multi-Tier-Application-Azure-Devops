@@ -128,6 +128,13 @@ stages:
       - job: docker_publish
         displayName: 'Docker_Publish'
         steps:
+        - script: |
+            sudo apt-get update
+            sudo apt-get install -y unzip
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+          displayName: 'Install AWS CLI'
 
         - script: |
             aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
