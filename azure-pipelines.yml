@@ -122,11 +122,11 @@ stages:
             inputs:
               script: 'trivy image --format table -o image.html public.ecr.aws/dev:latest'
 
-  - stage: docker_publish
-    displayName: 'Docker_Publish'
+  - stage: aws_ecr_login
+    displayName: 'AWS_ECR_Login'
     jobs:
-      - job: docker_publish
-        displayName: 'Docker_Publish'
+      - job: aws_ecr_login
+        displayName: 'AWS_ECR_Login'
         steps:
         
         - script: |
@@ -136,9 +136,13 @@ stages:
             AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
             AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
 
-        - task: Docker@2
-          inputs:
-            containerRegistry: 'docker-svc'
-            repository: 'dev'
-            command: 'push'
-            tags: 'latest'
+  - stage: docker_publish
+    displayName: 'Docker_Publish'
+    jobs:
+      - job: docker_publish
+        displayName: 'Docker_Publish'
+        steps:
+        - script: |
+            docker tag dev:latest public.ecr.aws/dev:latest
+            docker push public.ecr.aws/dev:latest
+
