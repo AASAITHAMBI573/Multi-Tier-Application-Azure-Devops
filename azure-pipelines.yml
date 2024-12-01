@@ -139,6 +139,6 @@ stages:
         - task: Docker@2
           inputs:
             containerRegistry: 'docker-svc'
-            repository: 'dev'
+            repository: 'public.ecr.aws/dev'
             command: 'push'
             tags: 'latest'
