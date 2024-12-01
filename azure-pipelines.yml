@@ -128,12 +128,10 @@ stages:
       - job: docker_publish
         displayName: 'Docker_Publish'
         steps:      
-          - task: Bash@3
-            displayName: Login to AWS ECR
+          - task: Docker@2
             inputs:
-              targetType: 'inline'
-              script: |
-                aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/p9x4b5g0
+              containerRegistry: 'docker-svc'
+              command: 'login'
 
           - task: Docker@2
             inputs:
