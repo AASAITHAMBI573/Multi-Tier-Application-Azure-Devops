@@ -136,9 +136,11 @@ stages:
           inputs:
             script: 'aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com'
         - task: CmdLine@2
+          displayName: 'Push to Amazon ECR'
           inputs:
             script: 'docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'           
         - task: CmdLine@2
+          displayName: 'Remove Images'
           inputs:
             script: |
               'docker rmi -f $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'
