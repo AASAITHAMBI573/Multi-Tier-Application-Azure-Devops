@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
       - name: bankapp
-        image: public.ecr.aws/dev:latest 
+        image: 590183925643.dkr.ecr.us-east-2.amazonaws.com/bankapp:latest
         ports:
         - containerPort: 8080
         env:
