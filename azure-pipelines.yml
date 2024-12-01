@@ -124,3 +124,17 @@ stages:
           - task: CmdLine@2
             inputs:
               script: trivy image --format table -o image.html $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest
+  
+  - stage: docker_publish
+    displayName: 'Docker_Publish'
+    jobs:
+      - job: docker_publish
+        displayName: 'Docker_Publish'
+        steps:
+        - task: CmdLine@2
+          displayName: 'Login to Amazon ECR'
+          inputs:
+            script: 'aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com'
+        - task: CmdLine@2
+          inputs:
+            script: 'docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'
