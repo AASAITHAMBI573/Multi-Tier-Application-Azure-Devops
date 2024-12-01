@@ -120,7 +120,7 @@ stages:
         steps:
           - task: CmdLine@2
             inputs:
-              script: 'trivy image --format table -o image.html public.ecr.aws/p9x4b5g0/dev:latest'
+              script: 'trivy image --format table -o image.html public.ecr.aws/dev:latest'
 
 
 
