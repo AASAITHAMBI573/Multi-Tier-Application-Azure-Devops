@@ -143,6 +143,8 @@ stages:
         displayName: 'Docker_Publish'
         steps:
         - script: |
-            docker tag dev:latest public.ecr.aws/dev:latest
-            docker push public.ecr.aws/dev:latest
+            docker build -t dev .
+            docker tag dev:latest public.ecr.aws/p9x4b5g0/dev:latest
+            docker push public.ecr.aws/p9x4b5g0/dev:latest
+
 
