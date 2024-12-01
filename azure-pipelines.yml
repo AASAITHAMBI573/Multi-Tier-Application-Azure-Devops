@@ -147,4 +147,16 @@ stages:
               docker rmi -f $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest
               docker rmi -f public.ecr.aws/bankapp:latest
             
-        
+  - stage: deploy_to_eks
+    displayName: 'Deploy_To_EKS'
+    jobs:
+      - job: deploy_to_eks
+        displayName: 'Deploy_To_EKS'
+        steps:  
+             - task: KubernetesManifest@1
+               inputs:
+                 action: 'deploy'
+                 connectionType: 'kubernetesServiceConnection'
+                 kubernetesServiceConnection: 'k8-con'
+                 namespace: 'default'
+                 manifests: 'deployment-service.yml'
