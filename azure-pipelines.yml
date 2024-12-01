@@ -122,5 +122,17 @@ stages:
             inputs:
               script: 'trivy image --format table -o image.html public.ecr.aws/dev:latest'
 
-
+  - stage: docker_publish
+    displayName: 'Docker_Publish'
+    jobs:
+      - job: docker_publish
+        displayName: 'Docker_Publish'
+        steps: 
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'docker-svc'
+              repository: 'dev'
+              command: 'push'
+              tags: 'latest'
+          
 
