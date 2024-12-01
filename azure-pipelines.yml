@@ -107,7 +107,7 @@ stages:
           - task: Docker@2
             inputs:
               containerRegistry: 'docker-svc'
-              repository: 'dev'
+              repository: 'bankapp'
               command: 'build'
               Dockerfile: '**/Dockerfile'
               tags: 'latest'
@@ -120,31 +120,4 @@ stages:
         steps:
           - task: CmdLine@2
             inputs:
-              script: 'trivy image --format table -o image.html public.ecr.aws/dev:latest'
-
-  - stage: aws_ecr_login
-    displayName: 'AWS_ECR_Login'
-    jobs:
-      - job: aws_ecr_login
-        displayName: 'AWS_ECR_Login'
-        steps:
-        
-        - script: |
-            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/p9x4b5g0
-          displayName: 'Login to AWS'
-          env:
-            AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
-            AWS_SECRET_ACCESS_KEY: $(AWS_SECRET_ACCESS_KEY)
-
-  - stage: docker_publish
-    displayName: 'Docker_Publish'
-    jobs:
-      - job: docker_publish
-        displayName: 'Docker_Publish'
-        steps:
-
-          - script: |
-              docker tag dev:latest public.ecr.aws/dev:latest
-              docker push public.ecr.aws/dev:latest
-
-
+              script: 'trivy image --format table -o image.html $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'
