@@ -147,7 +147,7 @@ stages:
               script: 'mvn package'
           - script: |
               docker build -t dev .
-              docker tag dev:latest public.ecr.aws/p9x4b5g0/dev:latest
-              docker push public.ecr.aws/p9x4b5g0/dev:latest
+              docker tag dev:latest public.ecr.aws/dev:latest
+              docker push public.ecr.aws/dev:latest
 
 
