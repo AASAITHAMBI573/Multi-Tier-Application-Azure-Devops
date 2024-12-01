@@ -130,7 +130,7 @@ stages:
         steps:
         
         - script: |
-            aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
+            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/p9x4b5g0
           displayName: 'Login to AWS'
           env:
             AWS_ACCESS_KEY_ID: $(AWS_ACCESS_KEY_ID)
@@ -139,6 +139,6 @@ stages:
         - task: Docker@2
           inputs:
             containerRegistry: 'docker-svc'
-            repository: 'public.ecr.aws/dev'
+            repository: 'dev'
             command: 'push'
             tags: 'latest'
