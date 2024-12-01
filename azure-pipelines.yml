@@ -142,9 +142,12 @@ stages:
       - job: docker_publish
         displayName: 'Docker_Publish'
         steps:
-        - script: |
-            docker build -t dev .
-            docker tag dev:latest public.ecr.aws/p9x4b5g0/dev:latest
-            docker push public.ecr.aws/p9x4b5g0/dev:latest
+          - task: CmdLine@2
+            inputs:
+              script: 'mvn package'
+          - script: |
+              docker build -t dev .
+              docker tag dev:latest public.ecr.aws/p9x4b5g0/dev:latest
+              docker push public.ecr.aws/p9x4b5g0/dev:latest
 
 
