@@ -121,5 +121,6 @@ stages:
           - task: CmdLine@2
             inputs:
               script: |
-                'docker tag bankapp:latest $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'
-                'trivy image --format table -o image.html $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'
+              
+                docker tag bankapp:latest $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest
+                trivy image --format table -o image.html $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest
