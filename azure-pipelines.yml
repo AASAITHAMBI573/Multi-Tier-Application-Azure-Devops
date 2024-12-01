@@ -137,4 +137,11 @@ stages:
             script: 'aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com'
         - task: CmdLine@2
           inputs:
-            script: 'docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'
+            script: 'docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'           
+        - task: CmdLine@2
+          inputs:
+            script: |
+              'docker rmi -f $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/bankapp:latest'
+              'docker rmi -f public.ecr.aws/bankapp:latest'
+            
+        
